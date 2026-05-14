@@ -7,11 +7,14 @@ import habitsRoutes from './src/routes/habits.routes.js';
 import statsRoutes from './src/routes/stats.routes.js';
 
 import errorHandler from './src/middleware/errorHandler.js';
+import { globalLimiter } from './src/middleware/rateLimiter.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
+
+app.use(globalLimiter);
 
 app.use(cors({
     origin: [

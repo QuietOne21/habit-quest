@@ -5,6 +5,7 @@ import { getHabits, createHabit, updateHabit, deleteHabit, toggleEntry, getMonth
 const router = Router();
 
 router.use(protect); //every router must have a valid jwt token
+router.use(apiLimiter);
 
 router.get('/', getHabits);
 router.post('/', habitValidation, createHabit );
