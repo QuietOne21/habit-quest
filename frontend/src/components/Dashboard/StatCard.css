@@ -1,0 +1,63 @@
+.stat-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Glow effect behind the value */
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -30%;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.2;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.stat-card.glow-purple::before { background: #7C3AED; }
+.stat-card.glow-cyan::before   { background: #06B6D4; }
+.stat-card.glow-pink::before   { background: #EC4899; }
+.stat-card.glow-yellow::before { background: #F59E0B; }
+
+.stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #94A3B8;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.stat-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  position: relative;
+  z-index: 1;
+}
+
+.stat-sub {
+  font-size: 12px;
+  color: #64748B;
+  position: relative;
+  z-index: 1;
+}

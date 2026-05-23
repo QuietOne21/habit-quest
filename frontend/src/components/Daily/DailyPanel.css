@@ -1,0 +1,35 @@
+.daily-grid {
+  padding: 24px 32px;
+}
+
+.habit-table {
+  width: 100%;
+  font-size: 12px;
+  border-collapse: collapse;
+}
+
+.habit-table th {
+  color: #94A3B8;
+  font-weight: 600;
+  padding: 6px 4px;
+  text-align: center;
+}
+
+.habit-name-cell {
+  font-size: 13px;
+  color: #CBD5E1;
+  white-space: nowrap;
+  padding: 4px 12px 4px 0;
+}
+
+.goal-cell {
+  text-align: center;
+  color: #64748B;
+  font-size: 12px;
+  padding: 4px 6px;
+}
+
+.day-cell {
+  text-align: center;
+  padding: 2px;
+}
