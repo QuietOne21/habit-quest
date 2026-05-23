@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+
+  # ──────────────────────────────────────────
+  # DATABASE — MySQL 8.0
+  # ──────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: habitquest-db
+    restart: always
+    # restart: always = if MySQL crashes, restart it
+
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass123
+      # Root password (used for admin tasks only)
+
+      MYSQL_DATABASE: habitquest
+      # Creates this database automatically on first start
+
+      MYSQL_USER: habituser
+      # Creates this user automatically
+
+      MYSQL_PASSWORD: habitpass123
+      # Password for habituser
+
+    ports:
+      - "3306:3306"
+      # HOST_PORT:CONTAINER_PORT
+      # Exposes MySQL to your computer for direct access
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Named volume: persists data between restarts
+      # Without this, ALL data is lost when container stops
+
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # MySQL auto-runs files in this folder on first start
+      # This creates all our tables and seeds badge data
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass123"]
+      interval: 10s
+      # Check every 10 seconds
+      timeout: 5s
+      # If no response in 5s, consider it failed
+      retries: 5
+      # Try 5 times before marking as unhealthy
+      start_period: 30s
+      # Give MySQL 30s to start before checking
+
+  # ──────────────────────────────────────────
+  # BACKEND — Node.js Express API
+  # ──────────────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      # Build from the backend folder
+      dockerfile: Dockerfile
+      # Using this Dockerfile
+
+    container_name: habitquest-api
+    restart: always
+
+    ports:
+      - "5000:5000"
+      # Exposes API for Thunder Client testing
+
+    environment:
+      # Database connection
+      DB_HOST:     db
+      # "db" is the service name above
+      # Docker networking resolves it to MySQL's IP
+
+      DB_PORT:     3306
+      DB_NAME:     habitquest
+      DB_USER:     habituser
+      DB_PASSWORD: habitpass123
+
+      # JWT settings
+      JWT_SECRET:     habitquest_super_secret_key_change_in_production
+      JWT_EXPIRES_IN: 24h
+
+      # Server settings
+      PORT:     5000
+      NODE_ENV: production
+
+    depends_on:
+      db:
+        condition: service_healthy
+        # Do not start the API until MySQL passes
+        # the healthcheck above
+        # Prevents "can't connect to database" on startup
+
+  # ──────────────────────────────────────────
+  # FRONTEND — React + nginx
+  # ──────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+    container_name: habitquest-frontend
+    restart: always
+
+    ports:
+      - "80:80"
+      # The app is available at http://localhost
+
+    depends_on:
+      - api
+      # Start frontend after the API is running
+
+# ──────────────────────────────────────────
+# VOLUMES
+# Data that persists between container restarts
+# ──────────────────────────────────────────
+volumes:
+  mysql_data:
+    # Docker manages this volume automatically
+    # Stored at: /var/lib/docker/volumes/
+    # To view: docker volume ls
+    # To delete: docker volume rm habitquest_mysql_data
