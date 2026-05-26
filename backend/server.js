@@ -23,6 +23,8 @@ app.use(cors({
         'http://localhost:3000', 
         'http://localhost', // react dev server (when running locally)
         'http://localhost:80', // nginx (when running in docker)
+        'https://quietone21.github.io/habit-quest',
+
     ],
     credentials: true,
 }));
