@@ -16,6 +16,8 @@ app.use(express.json());
 
 app.use(globalLimiter);
 
+app.set('trust proxy', 1);
+
 app.use(cors({
     origin: [
         'http://localhost:3000', 
@@ -40,7 +42,7 @@ app.use('/api/habits', habitsRoutes);
 app.use('/api/stats', statsRoutes);
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use((req, res) => {
     res.status(404).json({
         error: `Cannot ${req.method} ${req.originalUrl}`,
         statusCode: 404,

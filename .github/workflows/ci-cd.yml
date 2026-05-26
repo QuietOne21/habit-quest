@@ -1,0 +1,119 @@
+name: HabitQuest CI/CD (No Docker)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_ENV: test
+
+jobs:
+  # ─────────────────────────────────────────────
+  # BACKEND TESTS
+  # ─────────────────────────────────────────────
+  backend-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run backend tests
+        run: npm test
+        env:
+          JWT_SECRET: test_secret_key_minimum_32_chars_for_testing
+          DB_HOST: localhost
+          DB_PORT: 3306
+          DB_NAME: habitquest
+          DB_USER: habituser
+          DB_PASSWORD: habitpass123
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: backend/coverage/
+
+  # ─────────────────────────────────────────────
+  # FRONTEND BUILD & DEPLOY
+  # ─────────────────────────────────────────────
+  frontend-build:
+    runs-on: ubuntu-latest
+    needs: backend-test
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test -- --watchAll=false --ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/build/
+
+  # ─────────────────────────────────────────────
+  # DEPLOY TO GITHUB PAGES (Frontend)
+  # ─────────────────────────────────────────────
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: frontend-build
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: build/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./build
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Output Pages URL
+        run: echo "Deployed to ${{ steps.deployment.outputs.page_url }}"
+#

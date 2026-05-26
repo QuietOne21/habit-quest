@@ -1,4 +1,4 @@
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator}  from 'express-rate-limit';
 
 /** 
  * auth limiter (strict)
@@ -19,9 +19,7 @@ export const authLimiter = rateLimit({
 
     skipSuccessfulRequests: false,
 
-    keyGenerator: (req) => {
-        return req.headers['x-forwarded-for'] || req.ip;
-    },
+    keyGenerator: (key) => ipKeyGenerator(req, { trustProxy: true }),
 });
 
 /**
@@ -41,9 +39,7 @@ export const registerLimiter = rateLimit({
 
     legacyHeaders: false,
 
-    keyGenerator: (req) => {
-        return req.headers['x-forwarded-for'] || req.ip;
-    },
+    keyGenerator: (key) => ipKeyGenerator(req, { trustProxy: true }),
 });
 
 /**
@@ -63,9 +59,7 @@ export const apiLimiter = rateLimit({
 
     legacyHeaders: false,
 
-    keyGenerator: (req) => {
-        return req.headers['x-forwarded-for'] || req.ip;
-    },
+    keyGenerator: (key) => ipKeyGenerator(req, { trustProxy: true }),
 });
 
 /**
@@ -85,7 +79,5 @@ export const globalLimiter = rateLimit({
 
     legacyHeaders: false,
 
-    keyGenerator: (req) => {
-        return req.headers['x-forwarded-for'] || req.ip;
-    },
+    keyGenerator: (key) => ipKeyGenerator(req, { trustProxy: true }),
 });

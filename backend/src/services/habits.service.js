@@ -102,7 +102,7 @@ export const toggleEntry = async (userId, {habitId, date, completed, }) => {
 };
 
 // get monthly entries
-export const getMonthEntries = async (userId, year, month) => {
+export const getMonthlyEntries = async (userId, year, month) => {
     const [rows] = await pool.execute(
         `SELECT e.id, 
         e.habit_id AS habitId,

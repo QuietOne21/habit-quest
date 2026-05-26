@@ -9,12 +9,11 @@
     "build": "react-scripts build",
     "test": "react-scripts test"
   },
-  "browserslist": {
-    "production": {
-      "production": [">0.2%", "not dead"],
-      "development": ["last 1 chrome version"]
-    }
-  },
+   "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
