@@ -44,7 +44,7 @@ const habitsService        = await import('../src/services/habits.service.js');
 
 describe('Habits Controller', () => {
 
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => jest.resetAllMocks());
 
   // ─────────────────────────────────────────
   describe('GET /api/habits', () => {

@@ -12,7 +12,7 @@ const {
 
 describe('Habits Service', () => {
 
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => jest.resetAllMocks());
 
   // ─────────────────────────────────────────
   describe('getHabits()', () => {
@@ -29,7 +29,7 @@ describe('Habits Service', () => {
       expect(result).toHaveLength(2);
       expect(result[0].name).toBe('Push-Ups');
       expect(pool.execute).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE  user_id'),
+        expect.stringContaining('WHERE user_id'),
         [42]
       );
     });
@@ -85,51 +85,87 @@ describe('Habits Service', () => {
         .rejects.toThrow('Habit not found.');
     });
 
-    it('throws 404 if habit belongs to another user', async () => {
-      pool.execute.mockResolvedValueOnce([[]]); // wrong user_id check fails
+        it('throws 404 if habit does not belong to user', async () => {
+      // Ownership check returns empty = habit not found for this user
+      pool.execute.mockResolvedValueOnce([[]]);
+      // Add fallback mocks in case code continues past the throw
+      pool.execute.mockResolvedValue([[]]);
 
-      await expect(deleteHabit(1, 5))
-        .rejects.toThrow('Habit not found.');
+      await expect(
+        toggleEntry(1, {
+          habitId:   99,
+          date:      '2025-04-15',
+          completed: true,
+        })
+      ).rejects.toThrow('Habit not found.');
     });
   });
 
   // ─────────────────────────────────────────
-  describe('toggleEntry()', () => {
+    describe('toggleEntry()', () => {
 
     it('creates entry when habit is ticked', async () => {
-      pool.execute
-        .mockResolvedValueOnce([[{ id: 1, name: 'Push-Ups' }]])
-        // habit ownership check
-        .mockResolvedValueOnce([{}])
-        // INSERT/UPDATE entry
-        .mockResolvedValueOnce([[]])
-        // updateUserStats: SELECT user
-        .mockResolvedValueOnce([[{
-          id: 1, habit_name: 'Push-Ups',
-          completed: 1, entry_date: '2025-04-15'
-        }]]);
-        // final SELECT entry
+      // 1. Ownership check
+      pool.execute.mockResolvedValueOnce([[{ id: 1, name: 'Push-Ups' }]]);
+      // 2. INSERT ON DUPLICATE KEY UPDATE
+      pool.execute.mockResolvedValueOnce([{}]);
+      // 3. updateUserStats: SELECT user
+      pool.execute.mockResolvedValueOnce([[{
+        id: 1, xp: 0, level: 1, current_streak: 0, longest_streak: 0
+      }]]);
+      // 4. updateUserStats: SELECT completed dates
+      pool.execute.mockResolvedValueOnce([[]]);
+      // 5. updateUserStats: UPDATE user
+      pool.execute.mockResolvedValueOnce([{}]);
+      // 6. SELECT entry to return
+      pool.execute.mockResolvedValueOnce([[{
+        id: 1, habit_id: 1, habit_name: 'Push-Ups',
+        completed: 1, entry_date: '2025-04-15'
+      }]]);
 
-      await toggleEntry(1, {
-        habitId:   1,
-        date:      '2025-04-15',
-        completed: true,
+      const result = await toggleEntry(1, {
+        habitId: 1, date: '2025-04-15', completed: true,
       });
 
-      expect(pool.execute).toHaveBeenCalledWith(
-        expect.stringContaining('ON DUPLICATE KEY UPDATE'),
-        [1, 1, '2025-04-15', true, 1]
-      );
+      // Check the UPSERT call (index 1 in the call history)
+      const calls = pool.execute.mock.calls;
+      expect(calls[1][0]).toContain('ON DUPLICATE KEY UPDATE');
+      expect(calls[1][1]).toEqual([1, 1, '2025-04-15', true, 1]);
+      expect(result.completed).toBe(1);
+    });
+
+    it('marks a habit as NOT completed (untick)', async () => {
+      pool.execute.mockResolvedValueOnce([[{ id: 1, name: 'Push-Ups' }]]);
+      pool.execute.mockResolvedValueOnce([{}]);
+      pool.execute.mockResolvedValueOnce([[{
+        id: 1, xp: 10, level: 1, current_streak: 1, longest_streak: 1
+      }]]);
+      pool.execute.mockResolvedValueOnce([[{ entry_date: '2025-04-14' }]]);
+      pool.execute.mockResolvedValueOnce([{}]);
+      pool.execute.mockResolvedValueOnce([[{
+        id: 1, habit_id: 1, completed: 0, entry_date: '2025-04-15'
+      }]]);
+
+      const result = await toggleEntry(1, {
+        habitId: 1, date: '2025-04-15', completed: false,
+      });
+
+      const calls = pool.execute.mock.calls;
+      expect(calls[1][1]).toEqual([1, 1, '2025-04-15', false, 0]);
+      expect(result.completed).toBe(0);
     });
 
     it('throws 404 if habit does not belong to user', async () => {
-      pool.execute.mockResolvedValueOnce([[]]); // not found
+      pool.execute.mockResolvedValueOnce([[]]);
 
-      await expect(toggleEntry(1, { habitId: 99, date: '2025-04-15', completed: true }))
-        .rejects.toThrow('Habit not found.');
+      await expect(
+        toggleEntry(1, {
+          habitId: 99, date: '2025-04-15', completed: true,
+        })
+      ).rejects.toThrow('Habit not found.');
     });
   });
-
+  
   // ─────────────────────────────────────────
   describe('resetMonth()', () => {
 

@@ -7,7 +7,7 @@ export const getHabits = async (userId) => {
     const [rows] = await pool.execute(
         `SELECT id, name, description, color, daily_goal, sort_order, is_active, created_at
         FROM habits
-        WHERE user_id AND is_active = 1
+        WHERE user_id = ? AND is_active = 1
         ORDER BY sort_order ASC`, [userId]
     );
 
@@ -122,7 +122,7 @@ export const getMonthlyEntries = async (userId, year, month) => {
 // reset month
 export const resetMonth = async (userId, year, month) => {
     await pool.execute(
-        `DELETE FROM habits_entries
+        `DELETE FROM habit_entries
         WHERE user_id
         AND YEAR(entry_date) = ? AND MONTH(entry_date) = ?`,
         [userId, year, month]
@@ -136,7 +136,7 @@ const updateUserStats = async (userId, wasCompleted) => {
         [userId]
     );
 
-    if(!!users[0]) return;
+    if(!users[0]) return;
 
     let { xp, level, longest_streak } = users[0];
     

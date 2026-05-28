@@ -18,7 +18,7 @@ describe('Auth Service', () => {
 
   // Reset all mocks before each test
   // Stops one test's setup affecting the next
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => jest.resetAllMocks());
 
   // ─────────────────────────────────────────
   describe('register()', () => {

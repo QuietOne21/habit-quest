@@ -47,7 +47,7 @@ export const createHabit = async (req, res, next) => {
             req.user.id,
             req.body
         );
-        req.status(201).json(habit);
+        res.status(201).json(habit);
     } catch (err) {
         next(err);
     }
@@ -117,7 +117,7 @@ export const resetMonth = async (req, res, next) => {
             parseInt(req.params.year),
             parseInt(req.params.month)
         );
-        req.status(204).send();
+        res.status(204).send();
     } catch (err) {
         next(err);
     }

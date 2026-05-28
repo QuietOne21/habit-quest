@@ -1,6 +1,6 @@
 import pool from '../config/db.js';
 import { getUserSummary } from  './auth.service.js';
-import { getHabits, getMonthlyEntries } from './habits.service.js';
+import { getHabits, getMonthEntries } from './habits.service.js';
 
 const MONTH_NAMES = [
     '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',

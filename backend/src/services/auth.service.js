@@ -19,9 +19,9 @@ const generateToken = (user) => {
             username: user.username,
             email: user.email
         },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET || 'fallback_secret_for_development_only_32chars',
 
-        {expiresIn: process.env.JWT_EXPIRES_IN},
+        {expiresIn: process.env.JWT_EXPIRES_IN || '24h'},
     );
 };
 
@@ -98,7 +98,7 @@ export const login = async ({ email, password }) => {
     const user = users[0];
 
     if (!user) {
-        throw createError(401, 'Invalid email or passoword.');
+        throw createError(401, 'Invalid email or password.');
     }
 
     const passwordMatches = await bcrypt.compare(
