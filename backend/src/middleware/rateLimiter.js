@@ -19,7 +19,7 @@ export const authLimiter = rateLimit({
 
     skipSuccessfulRequests: false,
 
-    keyGenerator: (key) => ipKeyGenerator(req, { trustProxy: true }),
+    keyGenerator: (req) => ipKeyGenerator(req),
 });
 
 /**
@@ -39,7 +39,7 @@ export const registerLimiter = rateLimit({
 
     legacyHeaders: false,
 
-    keyGenerator: (key) => ipKeyGenerator(req, { trustProxy: true }),
+    keyGenerator: (req) => ipKeyGenerator(req),
 });
 
 /**
@@ -59,7 +59,7 @@ export const apiLimiter = rateLimit({
 
     legacyHeaders: false,
 
-    keyGenerator: (key) => ipKeyGenerator(req, { trustProxy: true }),
+    keyGenerator: (req) => ipKeyGenerator(req),
 });
 
 /**
@@ -79,5 +79,5 @@ export const globalLimiter = rateLimit({
 
     legacyHeaders: false,
 
-    keyGenerator: (key) => ipKeyGenerator(req, { trustProxy: true }),
+    keyGenerator: (req) => ipKeyGenerator(req),
 });
