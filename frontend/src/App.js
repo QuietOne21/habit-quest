@@ -16,7 +16,7 @@ function PrivateRoute({ children }) {
 function App() {
     return (
         <AuthProvider>
-            <Router>
+            <Router basename={process.env.PUBLIC_URL}>
                 <Routes>
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
