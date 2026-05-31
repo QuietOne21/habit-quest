@@ -102,7 +102,7 @@ export const toggleEntry = async (userId, {habitId, date, completed, }) => {
 };
 
 // get monthly entries
-export const getMonthlyEntries = async (userId, year, month) => {
+export const getMonthEntries = async (userId, year, month) => {
     const [rows] = await pool.execute(
         `SELECT e.id, 
         e.habit_id AS habitId,
@@ -123,7 +123,7 @@ export const getMonthlyEntries = async (userId, year, month) => {
 export const resetMonth = async (userId, year, month) => {
     await pool.execute(
         `DELETE FROM habit_entries
-        WHERE user_id
+        WHERE user_id = ?
         AND YEAR(entry_date) = ? AND MONTH(entry_date) = ?`,
         [userId, year, month]
     );

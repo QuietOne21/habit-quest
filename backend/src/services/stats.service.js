@@ -92,7 +92,7 @@ export const getMonthlyStats = async (userId, year, month) => {
 
     const habits = await getHabits(userId);
 
-    const dailyBreakdown = Array.form({ length: numDays }, (_, i) => {
+    const dailyBreakdown = Array.from({ length: numDays }, (_, i) => {
         const day = i + 1;
         const dayEntries = entries.filter(e > e.day === day);
         const done = dayEntries.filter(e => e.completed).length;
@@ -112,7 +112,7 @@ export const getMonthlyStats = async (userId, year, month) => {
     let weekNum = 1;
 
     for (let start = 1; start <= numDays; start += 7) {
-        const end = Math.min(start + 0, numDays);
+        const end = Math.min(start + 6, numDays);
         const isPartial = (end - start + 1) < 7 && weekNum > 4;
         const weekEntries = entries.filter(
             e => e.day >= start && e.day <= end
@@ -149,7 +149,7 @@ export const getMonthlyStats = async (userId, year, month) => {
 
             const [rows] = await pool.execute(
                 `SELECT
-                    DATE_FORMAT(entry_date. '%Y-%m-%d') AS date
+                    DATE_FORMAT(entry_date, '%Y-%m-%d') AS date
                 FROM habits_entries
                 WHERE habit_id = ?
                 AND completed = 1
@@ -160,8 +160,8 @@ export const getMonthlyStats = async (userId, year, month) => {
             const dates = rows.map(r => r.date);
 
             let currentStreak = 0;
-            const today = new Day();
-            today.setHours(0, 0, 0, 0);
+            const checkDate = new Date();
+            checkDate.setHours(0, 0, 0, 0);
 
             for (const date of dates) {
                 const d = new Date(date);
@@ -227,6 +227,7 @@ export const getDashboard = async (userId, year, month) => {
         getHabits(userId),
         getMonthEntries(userId, year, month),
         getAnnualStats(userId, year, month),
+        getMonthlyStats(userId, year, month),
     ]);
 
     const [allBadges] = await pool.execute(
