@@ -8,7 +8,7 @@ export function useHabits(year, month) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const fetchData = usecallback(async () => {
+    const fetchData = useCallback(async () => {
         try {
             setLoading(true);
             const [habitsRes, entriesRes] = await Promise.all([
