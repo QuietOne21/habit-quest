@@ -94,7 +94,7 @@ export const getMonthlyStats = async (userId, year, month) => {
 
     const dailyBreakdown = Array.from({ length: numDays }, (_, i) => {
         const day = i + 1;
-        const dayEntries = entries.filter(e > e.day === day);
+        const dayEntries = entries.filter(e => e.day === day);
         const done = dayEntries.filter(e => e.completed).length;
 
         const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
