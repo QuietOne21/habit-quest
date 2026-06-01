@@ -12,7 +12,7 @@ export function useHabits(year, month) {
         try {
             setLoading(true);
             const [habitsRes, entriesRes] = await Promise.all([
-                getEntries(), getMonthEntries(year, month),
+                getHabits(), getMonthEntries(year, month),
             ]);
             setHabits(habitsRes.data);
             setEntries(entriesRes.data);
