@@ -150,7 +150,7 @@ export const getMonthlyStats = async (userId, year, month) => {
             const [rows] = await pool.execute(
                 `SELECT
                     DATE_FORMAT(entry_date, '%Y-%m-%d') AS date
-                FROM habits_entries
+                FROM habit_entries
                 WHERE habit_id = ?
                 AND completed = 1
                 ORDER BY entry_date DESC`,
