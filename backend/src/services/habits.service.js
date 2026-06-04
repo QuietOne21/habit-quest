@@ -90,8 +90,12 @@ export const toggleEntry = async (userId, {habitId, date, completed, }) => {
     await updateUserStats(userId, completed);
 
     const [entries] = await pool.execute(
-        `SELECT e.*,
-        h.name AS habit_name
+        `SELECT
+            e.id,
+            e.habit_id AS habitId,
+            DATE_FORMAT(e.entry_date, '%Y-%m-%d) AS date,
+            e.completed,
+            h.name AS habitName
         FROM habit_entries e
         JOIN habits h ON h.id = e.habit_id
         WHERE e.habit_id = ?
