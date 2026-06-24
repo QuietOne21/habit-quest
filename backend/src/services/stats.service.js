@@ -167,7 +167,7 @@ export const getMonthlyStats = async (userId, year, month) => {
                 const d = new Date(date);
                 d.setHours(0, 0, 0, 0);
 
-                if (d.getTIme() === checkDate.getTime()) {
+                if (d.getTime() === checkDate.getTime()) {
                     currentStreak++;
                     checkDate.setDate(checkDate.getDate()- 1);
                 } else break;
@@ -226,7 +226,7 @@ export const getDashboard = async (userId, year, month) => {
         getUserSummary(userId),
         getHabits(userId),
         getMonthEntries(userId, year, month),
-        getAnnualStats(userId, year, month),
+        getAnnualStats(userId, year),
         getMonthlyStats(userId, year, month),
     ]);
 
